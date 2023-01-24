@@ -42,17 +42,17 @@ public class UtilsTest {
   class ParseDateTime_should {
     @Test
     public void parse_12_hour_times_correctly() {
-      assertEquals(parseDateTime("12:05am", null), LocalDateTime.of(2022, 1, 1, 0, 5));
-      assertEquals(parseDateTime("09:10pm", null), LocalDateTime.of(2022, 1, 1, 21, 10));
-      assertEquals(parseDateTime(null, "11:34am"), LocalDateTime.of(2022, 1, 1, 11, 34));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 0, 5), parseDateTime("12:05am", null));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 21, 10), parseDateTime("09:10pm", null));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 11, 34), parseDateTime(null, "11:34am"));
     }
 
     @Test
     public void parse_24_hour_times_correctly() {
-      assertEquals(parseDateTime("23:00", null), LocalDateTime.of(2022, 1, 1, 23, 0));
-      assertEquals(parseDateTime("2300", null), LocalDateTime.of(2022, 1, 1, 23, 0));
-      assertEquals(parseDateTime("17:00", null), LocalDateTime.of(2022, 1, 1, 17, 0));
-      assertEquals(parseDateTime("1233", null), LocalDateTime.of(2022, 1, 1, 12, 33));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 23, 0), parseDateTime("23:00", null));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 23, 0), parseDateTime("2300", null));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 17, 0), parseDateTime("17:00", null));
+      assertEquals(LocalDateTime.of(2022, 1, 1, 12, 33), parseDateTime("1233", null));
 
       assertThrows(DateTimeParseException.class, () -> parseDateTime("2500", null));
       assertThrows(DateTimeParseException.class, () -> parseDateTime("1269", null));
@@ -66,20 +66,25 @@ public class UtilsTest {
 
     @Test
     public void parse_dates_correctly() {
-      assertEquals(parseDateTime("03/05", null), LocalDateTime.of(2022, 3, 5, 12, 30));
-      assertEquals(parseDateTime(null, "31/12"), LocalDateTime.of(2022, 12, 31, 12, 30));
+      assertEquals(LocalDateTime.of(2022, 3, 5, 12, 30), parseDateTime("03/05", null));
+      assertEquals(LocalDateTime.of(2022, 12, 31, 12, 30), parseDateTime(null, "31/12"));
       assertThrows(DateTimeParseException.class, () -> parseDateTime(null, "12/31"),
-        "Should throw DateTimeParseException when encountering the wrong date format");
+        "Should throw DateTimeParseException when encountering a wrong date format");
     }
 
     @Test
     public void parse_both_correctly() {
-      assertEquals(parseDateTime("07/11", "12:00am"), LocalDateTime.of(2022, 11, 7, 0, 0));
-      assertEquals(parseDateTime("1639", "04/07"), LocalDateTime.of(2022, 7, 4, 16, 39));
+      assertEquals(LocalDateTime.of(2022, 11, 7, 0, 0), parseDateTime("07/11", "12:00am"));
+      assertEquals(LocalDateTime.of(2022, 7, 4, 16, 39), parseDateTime("1639", "04/07"));
+      assertEquals(parseDateTime("07/11", "12:00am"), parseDateTime("12:00am", "07/11"),
+        "Order should not matter");
+
       assertThrows(DateTimeParseException.class, () -> parseDateTime("1400", "1231"),
         "Should throw DateTimeParseException when there's no valid date");
       assertThrows(DateTimeParseException.class, () -> parseDateTime("03/02", "01/01"),
-        "Should throw DateTimeParseException when there's no valid time");
+        "Should throw DateTimeParseException when there's no valid date");
+      assertThrows(DateTimeParseException.class, () -> parseDateTime("2500", "01/01"),
+        "Should throw DateTimeParseException when there's one invalid component");
     }
   }
 }
